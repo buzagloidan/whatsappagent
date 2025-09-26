@@ -66,7 +66,7 @@ class GroupSummaryService:
         # Format messages for AI analysis
         messages_text = []
         for msg in messages:
-            sender_name = msg.sender.name if msg.sender else "Unknown"
+            sender_name = msg.sender.push_name if msg.sender and msg.sender.push_name else "Unknown"
             timestamp_str = msg.timestamp.strftime("%H:%M")
             message_content = msg.text or "[Media]"
             messages_text.append(f"[{timestamp_str}] {sender_name}: {message_content}")
@@ -107,12 +107,14 @@ Messages:
 
         return summaries
 
-    async def send_summary_to_admin(self, admin_phone: str, summaries: List[tuple[str, str]]):
+    async def send_summary_to_admin(self, admin_phone: str, summaries: List[tuple[str, str]], is_instant: bool = False):
         """Send combined summaries to admin phone number."""
+        header = "🚨 Instant Group Summary (Last 24h)" if is_instant else "📊 Daily Group Summary"
+
         if not summaries:
-            summary_text = "📊 Daily Group Summary\n\nNo group activity in the last 24 hours."
+            summary_text = f"{header}\n\nNo group activity in the last 24 hours."
         else:
-            summary_parts = ["📊 Daily Group Summary\n"]
+            summary_parts = [f"{header}\n"]
             for group_jid, summary in summaries:
                 group_name = group_jid.split("@")[0] if "@" in group_jid else "Group"
                 summary_parts.append(f"🔹 **{group_name}**")

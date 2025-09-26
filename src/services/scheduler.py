@@ -59,7 +59,7 @@ class SummaryScheduler:
             async with self.session_factory() as session:
                 summary_service = GroupSummaryService(session, self.whatsapp)
                 summaries = await summary_service.get_daily_summaries()
-                await summary_service.send_summary_to_admin(self.admin_phone, summaries)
+                await summary_service.send_summary_to_admin(self.admin_phone, summaries, is_instant=False)
 
         except Exception as e:
             logger.error(f"Failed to send scheduled daily summary: {e}")
@@ -73,13 +73,14 @@ class SummaryScheduler:
 
                 # Add instant indicator to message
                 if summaries:
-                    # Modify the first summary to indicate it's instant
-                    first_summary = summaries[0]
-                    instant_summary = ("🚨 Instant Group Summary (Last 24h)\n\n" +
-                                     first_summary[1].replace("📊 Daily Group Summary", ""))
-                    summaries[0] = (first_summary[0], instant_summary)
+                    # Create instant version by modifying the combined summary
+                    modified_summaries = []
+                    for group_jid, summary in summaries:
+                        modified_summaries.append((group_jid, summary))
+                    # We'll let the send_summary_to_admin handle formatting, just pass it through
+                    summaries = modified_summaries
 
-                await summary_service.send_summary_to_admin(self.admin_phone, summaries)
+                await summary_service.send_summary_to_admin(self.admin_phone, summaries, is_instant=True)
                 logger.info(f"Sent instant summary to admin {self.admin_phone}")
 
         except Exception as e:
