@@ -1,4 +1,3 @@
-from .knowledge_base_topic import KBTopic, KBTopicCreate
 from .message import Message, BaseMessage
 from .sender import Sender, BaseSender
 from .upsert import upsert, bulk_upsert
@@ -12,6 +11,4 @@ __all__ = [
     "WhatsAppWebhookPayload",
     "upsert",
     "bulk_upsert",
-    "KBTopic",
-    "KBTopicCreate",
 ]
