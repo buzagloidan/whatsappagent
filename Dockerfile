@@ -3,7 +3,7 @@ FROM python:3.12-slim-bookworm
 WORKDIR /app
 
 COPY requirements.txt .
-RUN --mount=type=cache,id=pip-cache,target=/root/.cache/pip \
+RUN --mount=type=cache,id=cache-pip,target=/root/.cache/pip \
     pip install -r requirements.txt
 
 COPY . .
