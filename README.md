@@ -32,7 +32,6 @@ VOYAGE_API_KEY=your_voyage_api_key
 DB_URI=postgresql+asyncpg://user:password@localhost:5432/postgres
 LOG_LEVEL=INFO
 GOOGLE_API_KEY=your-key-here # You need to have a real Google Generative AI key here
-LOGFIRE_TOKEN=your-key-here # You need to have a real logfire key here
 ```
 
 3. Start the services:

@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import httpx
-import logfire
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -27,10 +26,7 @@ async def main():
         datefmt="%Y-%m-%d %H:%M:%S",
         level=logging.DEBUG,
     )
-    logfire.configure()
-    # pydantic-ai removed - no longer needed
-    logfire.instrument_httpx(capture_all=True)
-    logfire.instrument_system_metrics()
+    # Using standard Python logging instead of external services
 
     try:
         # Create an async HTTP client and forward the message

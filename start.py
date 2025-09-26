@@ -18,7 +18,6 @@ def check_environment():
         'DB_URI',
         'WHATSAPP_HOST',
         'GOOGLE_API_KEY',
-        'LOGFIRE_TOKEN',
         'ADMIN_PHONE_NUMBER',
         'SUMMARY_SECRET_WORD'
     ]

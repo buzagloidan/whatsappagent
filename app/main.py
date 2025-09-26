@@ -6,9 +6,6 @@ from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlmodel.ext.asyncio.session import AsyncSession
 import logging
-import logfire
-
-import logging
 
 # Add early logging to debug imports
 early_logger = logging.getLogger("main")
@@ -62,7 +59,7 @@ async def lifespan(app: FastAPI):
         pool_recycle=600,
         future=True,
     )
-    logfire.instrument_sqlalchemy(engine)
+    # Standard SQLAlchemy logging - no external instrumentation needed
     async_session = async_sessionmaker(
         engine, expire_on_commit=False, class_=AsyncSession
     )
@@ -92,11 +89,7 @@ async def lifespan(app: FastAPI):
 # Initialize FastAPI app
 app = FastAPI(title="Webhook API", lifespan=lifespan)
 
-logfire.configure()
-# pydantic-ai removed - no longer needed
-logfire.instrument_fastapi(app)
-logfire.instrument_httpx(capture_all=True)
-logfire.instrument_system_metrics()
+# Using standard Python logging instead of external services
 
 
 logging.info("Registering API routes...")

@@ -27,7 +27,6 @@ class Settings(BaseSettings):
     # Optional settings
     debug: bool = False
     log_level: str = "INFO"
-    logfire_token: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -42,7 +41,5 @@ class Settings(BaseSettings):
         if self.google_api_key:
             environ["GOOGLE_API_KEY"] = self.google_api_key
 
-        if self.logfire_token:
-            environ["LOGFIRE_TOKEN"] = self.logfire_token
 
         return self
