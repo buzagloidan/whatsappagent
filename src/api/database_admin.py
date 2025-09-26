@@ -9,7 +9,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import text, SQLModel
 from sqlalchemy.ext.asyncio import AsyncEngine
 import models  # Import models to ensure metadata is populated
-from models import KBTopic, Message, Sender  # Explicit imports to ensure all models are registered
+from models import Message, Sender  # Explicit imports to ensure all models are registered
 
 from .deps import get_db_async_session
 
