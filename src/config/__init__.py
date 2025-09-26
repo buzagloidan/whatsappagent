@@ -23,7 +23,6 @@ class Settings(BaseSettings):
     # Admin settings
     admin_phone_number: str = "972542607800"
     summary_secret_word: str = "banana"
-    allowed_phone_numbers: str = "972542607800"  # Comma-separated list
 
     # Optional settings
     debug: bool = False

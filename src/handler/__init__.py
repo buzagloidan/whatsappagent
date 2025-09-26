@@ -23,15 +23,13 @@ class MessageHandler(BaseHandler):
     ):
         admin_phone = settings.admin_phone_number if settings else "972542607800"
         secret_word = settings.summary_secret_word if settings else "banana"
-        allowed_numbers = [num.strip() for num in (settings.allowed_phone_numbers.split(",") if settings else ["972542607800"])]
 
         self.router = Router(
             session,
             whatsapp,
             admin_phone=admin_phone,
             secret_word=secret_word,
-            scheduler=scheduler,
-            allowed_numbers=allowed_numbers
+            scheduler=scheduler
         )
         super().__init__(session, whatsapp)
 

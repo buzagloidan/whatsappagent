@@ -18,13 +18,13 @@ class Router(BaseHandler):
         whatsapp: WhatsAppClient,
         admin_phone: str = "972542607800",
         secret_word: str = "banana",
-        scheduler=None,
-        allowed_numbers: List[str] = None
+        scheduler=None
     ):
         self.admin_phone = normalize_jid(admin_phone) if admin_phone else None
         self.secret_word = secret_word.lower()
         self.scheduler = scheduler
-        self.allowed_numbers = [normalize_jid(num) for num in (allowed_numbers or ["972542607800"])]
+        # Hardcoded allowed numbers - only admin for now
+        self.allowed_numbers = [normalize_jid("972542607800")]
         super().__init__(session, whatsapp)
 
     async def __call__(self, message: Message):
