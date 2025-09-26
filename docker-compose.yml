@@ -23,7 +23,7 @@ services:
       - postgres
       - whatsapp
     environment:
-      - DB_URI=postgresql+asyncpg://user:password@postgres:5432/postgres
+      - DB_URI=postgresql+asyncpg://user:password@postgres:5432/webhook_db
       - WHATSAPP_HOST=http://whatsapp:3000
 
 volumes:
