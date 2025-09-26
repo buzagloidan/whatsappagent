@@ -8,8 +8,12 @@ services:
     extends:
       file: docker-compose.base.yml
       service: whatsapp
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
       - WHATSAPP_WEBHOOK=http://web-server:8000/webhook
+      - DB_URI=postgres://user:password@postgres:5432/webhook_db?sslmode=disable
 
   web-server:
     build: .
