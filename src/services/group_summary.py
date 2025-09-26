@@ -109,7 +109,19 @@ Please provide a comprehensive summary that includes:
 Make it informative and well-structured."""
 
             result = await self.summary_agent.run(summary_input)
-            return result.data
+            
+            # In pydantic-ai 0.2.15, the result object is a RunResult with a 'data' attribute
+            # that contains the actual response content. If that fails, try other common patterns.
+            try:
+                return result.data
+            except AttributeError:
+                # Fallback: try other common attribute names
+                for attr in ['content', 'text', 'message', 'result', 'response']:
+                    if hasattr(result, attr):
+                        return getattr(result, attr)
+                
+                # Final fallback: the result object itself might be the content
+                return str(result)
 
         except Exception as e:
             logger.error(f"Failed to generate summary for group {group_jid}: {e}")
