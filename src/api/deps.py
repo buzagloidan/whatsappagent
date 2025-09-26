@@ -5,7 +5,6 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from handler import MessageHandler
 from whatsapp import WhatsAppClient
-from voyageai.client_async import AsyncClient
 
 
 async def get_db_async_session(request: Request) -> AsyncSession:
@@ -24,11 +23,6 @@ def get_whatsapp(request: Request) -> WhatsAppClient:
     return request.app.state.whatsapp
 
 
-def get_text_embebedding(request: Request) -> AsyncClient:
-    assert request.app.state.embedding_client, "text embedding not initialized"
-    return request.app.state.embedding_client
-
-
 def get_scheduler(request: Request):
     return getattr(request.app.state, "scheduler", None)
 
@@ -40,8 +34,7 @@ def get_settings(request: Request):
 async def get_handler(
     session: Annotated[AsyncSession, Depends(get_db_async_session)],
     whatsapp: Annotated[WhatsAppClient, Depends(get_whatsapp)],
-    embedding_client: Annotated[AsyncClient, Depends(get_text_embebedding)],
     scheduler: Annotated[object, Depends(get_scheduler)],
     settings: Annotated[object, Depends(get_settings)],
 ) -> MessageHandler:
-    return MessageHandler(session, whatsapp, embedding_client, scheduler, settings)
+    return MessageHandler(session, whatsapp, scheduler, settings)

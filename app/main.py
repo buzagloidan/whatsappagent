@@ -23,7 +23,6 @@ except ImportError as e:
 import models  # noqa
 from config import Settings
 from whatsapp import WhatsAppClient
-from voyageai.client_async import AsyncClient
 
 try:
     settings = Settings()  # pyright: ignore [reportCallIssue]
@@ -70,9 +69,6 @@ async def lifespan(app: FastAPI):
 
     app.state.db_engine = engine
     app.state.async_session = async_session
-    app.state.embedding_client = AsyncClient(
-        api_key=settings.voyage_api_key, max_retries=settings.voyage_max_retries
-    )
 
     # Initialize and start the summary scheduler
     from services.scheduler import SummaryScheduler

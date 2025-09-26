@@ -1,8 +1,7 @@
 import logging
+from typing import List
 from sqlmodel.ext.asyncio.session import AsyncSession
-from voyageai.client_async import AsyncClient
 
-from handler.knowledge_base_answers import KnowledgeBaseAnswers
 from models import Message
 from whatsapp import WhatsAppClient
 from whatsapp.jid import normalize_jid
@@ -17,20 +16,33 @@ class Router(BaseHandler):
         self,
         session: AsyncSession,
         whatsapp: WhatsAppClient,
-        embedding_client: AsyncClient,
         admin_phone: str = "972542607800",
         secret_word: str = "banana",
-        scheduler=None
+        scheduler=None,
+        allowed_numbers: List[str] = None
     ):
-        self.ask_knowledge_base = KnowledgeBaseAnswers(
-            session, whatsapp, embedding_client
-        )
         self.admin_phone = normalize_jid(admin_phone) if admin_phone else None
         self.secret_word = secret_word.lower()
         self.scheduler = scheduler
-        super().__init__(session, whatsapp, embedding_client)
+        self.allowed_numbers = [normalize_jid(num) for num in (allowed_numbers or ["972542607800"])]
+        super().__init__(session, whatsapp)
 
     async def __call__(self, message: Message):
+        from whatsapp.jid import parse_jid
+        chat_jid = parse_jid(message.chat_jid)
+
+        # If this is a group message, just store it and don't respond
+        if chat_jid.is_group():
+            logger.info(f"Stored group message from {message.sender_jid} in {message.chat_jid}")
+            return  # Already stored by MessageHandler, no response needed
+
+        # For private messages, check if sender is allowed
+        if message.sender_jid not in self.allowed_numbers:
+            logger.info(f"Ignoring message from unauthorized number: {message.sender_jid}")
+            return
+
+        logger.info(f"Processing private message from authorized number: {message.sender_jid}")
+
         # Check if this is a secret word trigger from admin
         if (self.admin_phone and
             message.sender_jid == self.admin_phone and
@@ -58,18 +70,15 @@ class Router(BaseHandler):
             except Exception as e:
                 logger.error(f"Failed to handle secret word trigger: {e}")
 
-        # Send immediate emoji reaction to acknowledge message receipt
+        # For other messages from allowed numbers, just acknowledge
         try:
             await self.whatsapp.react_to_message(
                 message_id=message.message_id,
                 phone=message.chat_jid,
-                emoji="💬"
+                emoji="👍"
             )
-            logger.info(f"Sent immediate reaction 💬 for message {message.message_id}")
+            logger.info(f"Acknowledged message from authorized number {message.sender_jid}")
         except Exception as e:
-            logger.warning(f"Failed to send immediate reaction: {e}")
-
-        # Route all intents to LLM knowledge base for intelligent responses
-        await self.ask_knowledge_base(message)
+            logger.warning(f"Failed to send acknowledgment reaction: {e}")
 
 

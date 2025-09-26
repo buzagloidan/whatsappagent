@@ -17,8 +17,7 @@ def check_environment():
     required_vars = [
         'DB_URI',
         'WHATSAPP_HOST',
-        'GOOGLE_API_KEY', 
-        'VOYAGE_API_KEY',
+        'GOOGLE_API_KEY',
         'LOGFIRE_TOKEN'
     ]
     

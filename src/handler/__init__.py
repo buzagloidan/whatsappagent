@@ -2,7 +2,6 @@ import logging
 import httpx
 
 from sqlmodel.ext.asyncio.session import AsyncSession
-from voyageai.client_async import AsyncClient
 
 from handler.router import Router
 from models import (
@@ -19,22 +18,22 @@ class MessageHandler(BaseHandler):
         self,
         session: AsyncSession,
         whatsapp: WhatsAppClient,
-        embedding_client: AsyncClient,
         scheduler=None,
         settings=None,
     ):
         admin_phone = settings.admin_phone_number if settings else "972542607800"
         secret_word = settings.summary_secret_word if settings else "banana"
+        allowed_numbers = [num.strip() for num in (settings.allowed_phone_numbers.split(",") if settings else ["972542607800"])]
 
         self.router = Router(
             session,
             whatsapp,
-            embedding_client,
             admin_phone=admin_phone,
             secret_word=secret_word,
-            scheduler=scheduler
+            scheduler=scheduler,
+            allowed_numbers=allowed_numbers
         )
-        super().__init__(session, whatsapp, embedding_client)
+        super().__init__(session, whatsapp)
 
     async def __call__(self, payload: WhatsAppWebhookPayload):
         message = await self.store_message(payload)
