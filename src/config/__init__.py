@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     voyage_api_key: str
     voyage_max_retries: int = 5
 
+    # Admin settings
+    admin_phone_number: str = "972542607800"
+    summary_secret_word: str = "banana"
+
     # Optional settings
     debug: bool = False
     log_level: str = "INFO"

@@ -29,9 +29,19 @@ def get_text_embebedding(request: Request) -> AsyncClient:
     return request.app.state.embedding_client
 
 
+def get_scheduler(request: Request):
+    return getattr(request.app.state, "scheduler", None)
+
+
+def get_settings(request: Request):
+    return request.app.state.settings
+
+
 async def get_handler(
     session: Annotated[AsyncSession, Depends(get_db_async_session)],
     whatsapp: Annotated[WhatsAppClient, Depends(get_whatsapp)],
     embedding_client: Annotated[AsyncClient, Depends(get_text_embebedding)],
+    scheduler: Annotated[object, Depends(get_scheduler)],
+    settings: Annotated[object, Depends(get_settings)],
 ) -> MessageHandler:
-    return MessageHandler(session, whatsapp, embedding_client)
+    return MessageHandler(session, whatsapp, embedding_client, scheduler, settings)

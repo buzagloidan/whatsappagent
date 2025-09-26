@@ -68,15 +68,28 @@ async def lifespan(app: FastAPI):
         engine, expire_on_commit=False, class_=AsyncSession
     )
 
-
     app.state.db_engine = engine
     app.state.async_session = async_session
     app.state.embedding_client = AsyncClient(
         api_key=settings.voyage_api_key, max_retries=settings.voyage_max_retries
     )
+
+    # Initialize and start the summary scheduler
+    from services.scheduler import SummaryScheduler
+    scheduler = SummaryScheduler(
+        session_factory=async_session,
+        whatsapp=app.state.whatsapp,
+        admin_phone=settings.admin_phone_number
+    )
+    app.state.scheduler = scheduler
+    await scheduler.start()
+    logging.info(f"Summary scheduler started for admin {settings.admin_phone_number}")
+
     try:
         yield
     finally:
+        # Clean up scheduler
+        await scheduler.stop()
         await engine.dispose()
 
 
