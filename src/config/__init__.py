@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     google_api_key: str
 
     # Admin settings
-    admin_phone_number: str = "972542607800"
-    summary_secret_word: str = "banana"
+    admin_phone_number: str
+    summary_secret_word: str
 
     # Optional settings
     debug: bool = False

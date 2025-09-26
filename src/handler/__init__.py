@@ -21,14 +21,14 @@ class MessageHandler(BaseHandler):
         scheduler=None,
         settings=None,
     ):
-        admin_phone = settings.admin_phone_number if settings else "972542607800"
-        secret_word = settings.summary_secret_word if settings else "banana"
+        if not settings:
+            raise ValueError("Settings are required - admin_phone_number and summary_secret_word must be set")
 
         self.router = Router(
             session,
             whatsapp,
-            admin_phone=admin_phone,
-            secret_word=secret_word,
+            admin_phone=settings.admin_phone_number,
+            secret_word=settings.summary_secret_word,
             scheduler=scheduler
         )
         super().__init__(session, whatsapp)

@@ -16,15 +16,15 @@ class Router(BaseHandler):
         self,
         session: AsyncSession,
         whatsapp: WhatsAppClient,
-        admin_phone: str = "972542607800",
-        secret_word: str = "banana",
+        admin_phone: str,
+        secret_word: str,
         scheduler=None
     ):
         self.admin_phone = normalize_jid(admin_phone) if admin_phone else None
         self.secret_word = secret_word.lower()
         self.scheduler = scheduler
-        # Hardcoded allowed numbers - only admin for now
-        self.allowed_numbers = [normalize_jid("972542607800")]
+        # Only admin is allowed to interact with bot in private messages
+        self.allowed_numbers = [normalize_jid(admin_phone)] if admin_phone else []
         super().__init__(session, whatsapp)
 
     async def __call__(self, message: Message):
