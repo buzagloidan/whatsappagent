@@ -19,7 +19,7 @@ class GroupSummaryService:
         self.session = session
         self.whatsapp = whatsapp
         self.summary_agent = Agent(
-            model=GoogleModel("gemini-1.5-flash"),
+            model=GoogleModel("gemini-2.5-flash-preview-09-2025"),
             system_prompt="""You are a WhatsApp group activity summarizer.
             Analyze the provided group messages and create a concise, engaging summary.
 
