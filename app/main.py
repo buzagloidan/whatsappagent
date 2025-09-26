@@ -93,7 +93,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Webhook API", lifespan=lifespan)
 
 logfire.configure()
-logfire.instrument_pydantic_ai()
+# pydantic-ai removed - no longer needed
 logfire.instrument_fastapi(app)
 logfire.instrument_httpx(capture_all=True)
 logfire.instrument_system_metrics()

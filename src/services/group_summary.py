@@ -1,11 +1,11 @@
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
+import os
 
 from sqlmodel import select, and_
 from sqlmodel.ext.asyncio.session import AsyncSession
-from pydantic_ai import Agent
-from pydantic_ai.models.google import GoogleModel
+import google.generativeai as genai
 
 from models import Message
 from whatsapp import WhatsAppClient
@@ -18,21 +18,28 @@ class GroupSummaryService:
     def __init__(self, session: AsyncSession, whatsapp: WhatsAppClient):
         self.session = session
         self.whatsapp = whatsapp
-        self.summary_agent = Agent(
-            model=GoogleModel("gemini-2.5-flash-preview-09-2025"),
-            system_prompt="""You are a WhatsApp group activity summarizer.
-            Analyze the provided group messages and create a concise, engaging summary.
+        
+        # Configure Google Generative AI
+        api_key = os.getenv('GOOGLE_API_KEY') or os.getenv('GEMINI_API_KEY')
+        if not api_key:
+            logger.warning("No Google API key found. Set GOOGLE_API_KEY or GEMINI_API_KEY environment variable.")
+        else:
+            genai.configure(api_key=api_key)
+            
+        self.model = genai.GenerativeModel("gemini-2.5-flash")
+        
+        self.system_prompt = """You are a WhatsApp group activity summarizer.
+        Analyze the provided group messages and create a concise, engaging summary.
 
-            Focus on:
-            - Key topics discussed
-            - Important decisions or announcements
-            - Active participants
-            - Notable conversations or highlights
+        Focus on:
+        - Key topics discussed
+        - Important decisions or announcements
+        - Active participants
+        - Notable conversations or highlights
 
-            Format your response as a friendly, informative summary in Hebrew or English
-            (based on the language used in the messages).
-            Keep it under 200 words and make it engaging to read."""
-        )
+        Format your response as a friendly, informative summary in Hebrew or English
+        (based on the language used in the messages).
+        Keep it under 200 words and make it engaging to read."""
 
     async def get_groups_from_messages(self) -> List[str]:
         """Get all unique group chat JIDs from recent messages."""
@@ -108,20 +115,12 @@ Please provide a comprehensive summary that includes:
 
 Make it informative and well-structured."""
 
-            result = await self.summary_agent.run(summary_input)
+            # Combine system prompt with the input
+            full_prompt = f"{self.system_prompt}\n\n{summary_input}"
             
-            # In pydantic-ai 0.2.15, the result object is a RunResult with a 'data' attribute
-            # that contains the actual response content. If that fails, try other common patterns.
-            try:
-                return result.data
-            except AttributeError:
-                # Fallback: try other common attribute names
-                for attr in ['content', 'text', 'message', 'result', 'response']:
-                    if hasattr(result, attr):
-                        return getattr(result, attr)
-                
-                # Final fallback: the result object itself might be the content
-                return str(result)
+            # Generate response using Google Generative AI directly
+            response = await self.model.generate_content_async(full_prompt)
+            return response.text
 
         except Exception as e:
             logger.error(f"Failed to generate summary for group {group_jid}: {e}")

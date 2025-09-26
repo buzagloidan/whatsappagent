@@ -28,7 +28,7 @@ async def main():
         level=logging.DEBUG,
     )
     logfire.configure()
-    logfire.instrument_pydantic_ai()
+    # pydantic-ai removed - no longer needed
     logfire.instrument_httpx(capture_all=True)
     logfire.instrument_system_metrics()
 
